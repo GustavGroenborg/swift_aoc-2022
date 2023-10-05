@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "name": "Debug dec1",
+            "program": "${workspaceFolder:dec1}/.build/debug/dec1",
+            "args": [],
+            "cwd": "${workspaceFolder:dec1}",
+            "preLaunchTask": "swift: Build Debug dec1"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "name": "Release dec1",
+            "program": "${workspaceFolder:dec1}/.build/release/dec1",
+            "args": [],
+            "cwd": "${workspaceFolder:dec1}",
+            "preLaunchTask": "swift: Build Release dec1"
+        }
+    ]
+}
