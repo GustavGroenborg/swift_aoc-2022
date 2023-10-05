@@ -1,0 +1,11 @@
+{
+  "": {
+    "swift-dependencies": "/Users/gustavgronborg/advent_of_code/swift_aoc-2022/dec1/.build/x86_64-apple-macosx/debug/dec1.build/master.swiftdeps"
+  },
+  "/Users/gustavgronborg/advent_of_code/swift_aoc-2022/dec1/Sources/dec1/dec1.swift": {
+    "dependencies": "/Users/gustavgronborg/advent_of_code/swift_aoc-2022/dec1/.build/x86_64-apple-macosx/debug/dec1.build/dec1.d",
+    "object": "/Users/gustavgronborg/advent_of_code/swift_aoc-2022/dec1/.build/x86_64-apple-macosx/debug/dec1.build/dec1.swift.o",
+    "swiftmodule": "/Users/gustavgronborg/advent_of_code/swift_aoc-2022/dec1/.build/x86_64-apple-macosx/debug/dec1.build/dec1~partial.swiftmodule",
+    "swift-dependencies": "/Users/gustavgronborg/advent_of_code/swift_aoc-2022/dec1/.build/x86_64-apple-macosx/debug/dec1.build/dec1.swiftdeps"
+  }
+}
