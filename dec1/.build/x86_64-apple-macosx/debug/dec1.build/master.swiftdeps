@@ -1,6 +1,0 @@
-version: "Apple Swift version 5.7.2 (swiftlang-5.7.2.135.5 clang-1400.0.29.51)"
-options: "c7f2860c5f6afecc947c08e5c5b815bc4b805f5268099b5dccf04241528c5bd5"
-build_start_time: [1696517111, 762717008]
-build_end_time: [1696517112, 83807945]
-inputs:
-  "/Users/gustavgronborg/advent_of_code/swift_aoc-2022/dec1/Sources/dec1/dec1.swift": [1696517109, 381627082]
