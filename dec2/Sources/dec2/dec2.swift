@@ -9,9 +9,9 @@ public struct dec2 {
     */
 
     /* Player symbols:
-    * X == Rock
-    * Y == Paper
-    * z == Scissors
+    * X == Rock / Lose
+    * Y == Paper / Draw
+    * z == Scissors / Win
     */
 
     /* Scores:
@@ -28,9 +28,61 @@ public struct dec2 {
     public static func main() {
         print("Part 1:")
         part1()
+
+        print("Part 2: ")
+        part2()
     }
         
 }
+
+
+
+enum Shape {
+    case rock 
+    case paper 
+    case scissors 
+    case error
+}
+
+
+
+enum Game: Int {
+    case win = 6
+    case draw = 3
+    case lose = 0
+}
+
+
+
+func getOpponentShape(opponentSymbol: String) -> Shape {
+    switch opponentSymbol {
+            case "A":
+                return .rock
+            case "B":
+                return .paper
+            case "C":
+                return .scissors
+            default: 
+                fatalError(#"Unexpected opponent symbol. Expected "X", "Y" or "Z", got: \#(opponentSymbol)"#)
+        }
+}
+
+
+
+func getShapeScore(Shape: Shape) -> Int {
+    switch Shape {
+            case .rock:
+                return 1
+            case .paper:
+                return 2
+            case .scissors:
+                return 3
+            default: // For error checking
+                return -1
+        }
+}
+
+
 
 func part1() {
     let fp = FileManager.default.currentDirectoryPath + "/Resources/input.txt"
@@ -62,97 +114,160 @@ func part1() {
             }
         }
 
-        totalScore += computeScore(opponentSymbol: String(opponentSymb), playerSymbol: String(playerSymb))
+        var playerShape: Shape {
+            switch playerSymb {
+                case "X":
+                    return .rock
+                case "Y":
+                    return .paper
+                case "Z":
+                    return .scissors
+                default: 
+                    return .error
+            }
+        }
+
+        guard playerShape != .error else {
+            fatalError(#"Wrong player input. Expected, "X”, ”Y" or ”Z”, got \#(playerSymb)"#)
+        }
+
+        totalScore += computeScore(opponentShape: getOpponentShape(opponentSymbol: String(opponentSymb)), 
+                                   playerShape: playerShape)
         
     }
 
-    print("Total score according to the strategy guide: \(totalScore)")
+    print("\t Total score according to the strategy guide: \(totalScore)")
 }
 
 
-func computeScore(opponentSymbol: String, playerSymbol: String) -> Int {
-    enum Shape {
-        case rock 
-        case paper 
-        case scissors 
-        case error
+
+func part2() {
+    let fp = FileManager.default.currentDirectoryPath + "/Resources/input.txt"
+
+    guard let file = freopen(fp, "r", stdin) else {
+        fatalError("Could not open input file")
+    }
+    defer { // Closing the file, at the end of the scope.
+        fclose(file)
     }
 
-    var playerShape: Shape {
-        switch playerSymbol {
-            case "X":
-                return .rock
-            case "Y":
-                return .paper
-            case "Z":
-                return .scissors
-            default: 
-                return .error
+    var totalScore = 0
+
+    while let line = readLine() {
+        var playerAction = Game.lose
+        var playerShape = Shape.error
+        var opponentShape = Shape.error
+
+        for char in line {
+            switch char {
+                case "A", "B", "C":
+                    opponentShape = getOpponentShape(opponentSymbol: String(char))
+                case "X", "Y", "Z":
+                    playerAction = determinePlayerAction(char)
+                default:
+                    continue
+            }
         }
-    }
 
-    var opponentShape: Shape {
-        switch opponentSymbol {
-            case "A":
-                return .rock
-            case "B":
-                return .paper
-            case "C":
-                return .scissors
-            default: 
-                return .error
-            
+        // Determining the player shape
+        if playerAction == .win {
+            playerShape = determineWinningShape(opponentShape)
+        } else if playerAction == .draw {
+            playerShape = determineDrawShape(opponentShape)
+        } else { // Player must have lost
+            playerShape = determineLosingShape(opponentShape)
         }
+        totalScore += computeScore(opponentShape: opponentShape, playerShape: playerShape) 
     }
 
-    let win = 6;
-    let draw = 3;
-    let lose = 0;
-
-    var playerScore: Int {
-        switch playerShape {
-            case .rock:
-                return 1
-            case .paper:
-                return 2
-            case .scissors:
-                return 3
-            default: // For error checking
-                return -1
-        }
-    }
+    print("\t If everything goes exactly to the strategy guide the total score will be: \(totalScore)")
+}
 
 
-    guard playerScore != -1 else {
-        fatalError(#"Wrong player input. Expected, "X”, ”Y" or ”Z”, got \#(playerSymbol)"#)
-    }
 
+/// Computes the player score of a round.
+func computeScore(opponentShape: Shape, playerShape: Shape) -> Int {
+    let playerScore = getShapeScore(Shape: playerShape)
+
+    // Determining the final score.
     switch opponentShape {
         case .rock:
             if playerShape == .rock {
-                return draw + playerScore
+                return Game.draw.rawValue + playerScore
             } else if playerShape == .paper {
-                return win + playerScore
+                return Game.win.rawValue + playerScore
             } else { // Player must have lost
-                return lose + playerScore
+                return Game.lose.rawValue + playerScore
             }
         case .paper:
             if playerShape == .paper {
-                return draw + playerScore
+                return Game.draw.rawValue + playerScore
             } else if playerShape == .scissors {
-                return win + playerScore
+                return Game.win.rawValue + playerScore
             } else {
-                return lose + playerScore
+                return Game.lose.rawValue + playerScore
             }
         case .scissors:
             if playerShape == .scissors {
-                return draw + playerScore
+                return Game.draw.rawValue + playerScore
             } else if playerShape == .rock {
-                return win + playerScore
+                return Game.win.rawValue + playerScore
             } else {
-                return lose + playerScore
+                return Game.lose.rawValue + playerScore
             }
         default:
-            fatalError(#"Unexpected opponent symbol. Expected "X", "Y" or "Z", got: \#(opponentSymbol)"#)
+            fatalError("Unexpected error while determining final score")
     }
+}
+
+
+
+func determinePlayerAction(_ char: Character) -> Game {
+    switch char {
+        case "X":
+            return Game.lose
+        case "Y":
+            return Game.draw
+        case "Z":
+            return Game.win
+        default: 
+            fatalError(#"Unexpected player action symbol. Expected "X", "Y" or "Z", got: \#(char)"#)
+    }
+}
+
+
+
+func determineWinningShape(_ opponentShape: Shape) -> Shape {
+    switch opponentShape {
+        case .rock:
+            return .paper
+        case .scissors:
+            return .rock
+        case .paper:
+            return .scissors
+        default: 
+            return .error
+    }
+}
+
+
+
+func determineLosingShape(_ opponentShape: Shape) -> Shape {
+    switch opponentShape {
+        case .rock:
+            return .scissors
+        case .scissors:
+            return .paper
+        case .paper:
+            return .rock
+        default:
+            return .error
+    }
+}
+
+
+
+/// - returns: The same shape, as the opponent.
+func determineDrawShape(_ opponentShape: Shape) -> Shape {
+    opponentShape
 }
