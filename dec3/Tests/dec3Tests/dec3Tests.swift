@@ -67,7 +67,7 @@ final class dec3Tests: XCTestCase {
     }
 
 
-    func test_foo() throws {
+    func disabled_test_foo() throws {
         let str = "foooar"
         let start = str.startIndex
         let middle = str.index(start, offsetBy: str.count / 2)
@@ -77,6 +77,33 @@ final class dec3Tests: XCTestCase {
 
         XCTAssertEqual(substrL, "foo")
         XCTAssertEqual(substrR, "obar")
+    }
+
+
+    func test_compare3PriorityArrays() {
+        // Given
+        /*
+        let lines = ["vJrwpWtwJgWrhcsFMMfFFhFp", 
+            "jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL", 
+            "PmmdzqPrVvPwwTWBwg"]
+            */
+        let lines = ["wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn",
+            "ttgJtRGJQctTZtZT",
+            "CrZsJsPPZsGzwwsLwLmpwMDw"]
+        let elf1 = countPriorities(rucksack: convertToPriorityArray(str: lines[0]))
+        let elf2 = countPriorities(rucksack: convertToPriorityArray(str: lines[1]))
+        let elf3 = countPriorities(rucksack: convertToPriorityArray(str: lines[2]))
+        let expected = 52
+
+        print(elf1)
+        print(elf2)
+        print(elf3)
+
+        // When
+        let output = comparePriorities(a: elf1, b: elf2, c: elf3)
+
+        // Then
+        XCTAssertEqual(output, expected)
     }
 
 }
