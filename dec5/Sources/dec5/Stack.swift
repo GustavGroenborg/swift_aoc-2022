@@ -5,7 +5,19 @@ public struct Stack<T> {
         contents.isEmpty
     }
 
-    private var contents: Array<T> = []
+    private var contents: Array<T>
+
+    init() {
+        self.contents = []
+    }
+
+    init(element: T) {
+        self.contents = [element]
+    }
+
+    init(array: Array<T>) {
+        self.contents = array
+    }
 
     func peek() -> T? {
         if contents.isEmpty {
