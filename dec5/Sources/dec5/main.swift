@@ -2,6 +2,9 @@
 // https://docs.swift.org/swift-book
 
 print("Hello, world!")
+public struct dec5 {
+
+}
 
 
 // Solve by making an array of linked-lists, where each element in the array

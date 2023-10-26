@@ -10,5 +10,12 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .executableTarget(
             name: "dec5"),
+        .testTarget(
+            name: "dec5Tests",
+            dependencies: ["dec5"]),
+        .testTarget(
+            name: "StackTests",
+            dependencies: ["dec5"]
+        ),
     ]
 )
