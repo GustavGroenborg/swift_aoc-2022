@@ -7,8 +7,8 @@ final class ParserTests: XCTestCase {
     var tokenInput: String!
 
     override func setUp() {
-        parser = Parser()
-        tokenInput = "$ cd /\n$ ls\ndir a\n14848514 b.txt\n8504156 c.dat\ndir d\n$ cd a\n$ ls\ndir e\n29116 f\n2557 g\n62596 h.lst"
+        parser = Parser(root: Directory(name: "/"))
+        tokenInput = "$ cd /\n$ ls\ndir a\n14848514 b.txt\n8504156 c.dat\ndir d\n$ cd a\n$ ls\ndir e\n29116 f\n2557 g\n62596 h.lst\n$ cd e\n$ ls\n584 i\n$ cd .. \n$ cd .. \n$ cd d\n$ ls\n4060174 j\n8033020 d.log\n5626152 d.ext\n7214296 k"
     }
 
     override func tearDown() {
@@ -53,7 +53,7 @@ final class ParserTests: XCTestCase {
     func test_Token_cd() throws {
         // Given
         let str = "$ cd /\n$ ls \ndir a\n14848514 b.txt\n8504156 c.dat\ndir d\n$ cd a\n"
-        let expected = "$ cd /"
+        let expected = " cd /"
 
         // When
         guard let range = str.range(of: Tokens.cd.rawValue, options: .regularExpression) else {
@@ -67,7 +67,7 @@ final class ParserTests: XCTestCase {
 
     func test_Token_ls() throws {
         // Given
-        let expected = "$ ls\ndir a\n14848514 b.txt\n8504156 c.dat\ndir d"
+        let expected = " ls\ndir a\n14848514 b.txt\n8504156 c.dat\ndir d"
 
         // When
         guard let range = tokenInput.range(of: Tokens.ls.rawValue, options: .regularExpression) else {
@@ -95,13 +95,14 @@ final class ParserTests: XCTestCase {
 
     func test_Token_dir() throws {
         // Given
+        let input = "dir a"
         let expected = "a"
 
         // When
-        guard let range = tokenInput.range(of: Tokens.dir.rawValue, options: .regularExpression) else {
+        guard let range = input.range(of: Tokens.dir.rawValue, options: .regularExpression) else {
             return XCTFail("Regex yielded no range: \(Tokens.dir.rawValue)")
         }
-        let output = String(tokenInput[range])
+        let output = String(input[range])
 
         // Then
         XCTAssertEqual(expected, output)
@@ -123,28 +124,47 @@ final class ParserTests: XCTestCase {
     }
 
 
-    func test_locateDirectory() throws {
+    func test_parseListDirectoryContents_addFiles() throws {
         // Given
-        var root = Directory(name: "/")
-        var dirA = Directory(name: "a", parent: root)
-        var dirE = Directory(name: "e", parent: dirA)
-        var dirD = Directory(name: "d", parent: root)
-        var dirF = Directory(name: "f", parent: dirD)
+        let localParser = Parser(root: Directory(name: "/"))
+        let input = localParser.scanCommands(from: tokenInput)
+
+        let expectedDirNames = ["/", "a", "d"]
+        let expectedFileNames = ["i", "f", "g", "h.lst", "b.txt", "c.dat", "j", "d.log", "d.ext", "k"]
 
         // When
-        guard let foundDir = locate(directory: "f", in: root) else {
-            return XCTFail("Could not find directory of name \(dirF.name).")
+        for str in input {
+            localParser.parseCommand(from: str)
         }
 
         // Then
-        XCTAssertTrue(dirF === foundDir)
+        for str in expectedDirNames {
+            XCTAssertNotNil(locate(directory: str, in: localParser.root), "Could not find directory with name \(str)")
+        }
+
+        for str in expectedFileNames {
+            XCTAssertNotNil(locate(file: str, in: localParser.root), "Could not find file with name \(str)")
+        }
     }
 
 
-    func test_parseDirectory() throws {
+    func test_puzzlenput() throws {
         // Given
-        let input = "cd foo"
+        let localParser = Parser(root: Directory(name: "/"))
+        let input = localParser.scanCommands(from: tokenInput)
+        let expectedSum: uint64 = 95437
 
+        // When
+        for str in input {
+            localParser.parseCommand(from: str)
+        }
+
+        var foundSum: uint64 = 0
+        let foundDirectories = locateDirectories(lessThanOrEqualTo: 100_000, in: localParser.root)
+        foundDirectories.forEach { foundSum += $0.size }
+
+        // Then
+        XCTAssertEqual(expectedSum, foundSum)
 
     }
 }
